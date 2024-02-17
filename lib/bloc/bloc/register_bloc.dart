@@ -12,6 +12,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     on<CheckAndAuthorUserEvent>((event, emit) async {
       final User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) print("Чек блок");
+      
 
       try {
         print("try");
@@ -28,6 +29,9 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         }
       } catch (e) {
         print("Юзер null");
+        // await FirebaseAuth.instance.signOut(); 
+        //-Для удаление юзера(удалить. Если не выйти, то удаляя вручную юзера с бд зарегистрироваться с тем же)
+        //uid не получится.
         emit(UserEmptyState());
       }
     });
@@ -44,17 +48,20 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           'surname': event.surname,
           'activity': true,
           'chat': [],
-          'lastSeen': null,
+          'lastSeen': Timestamp.now(),
           'aboutMe': event.aboutMe,
         });
         emit(UserRegisterState(
             user: UserModel(
-                activity: true,
+                
                 uid: uid,
+                unicNickName: event.unicNickName,
                 name: event.name,
+                
                 surname: event.surname,
+                activity: true,
                 chat: [],
-                lastSeen: null,
+                lastSeen: Timestamp.now(),
                 aboutMe: event.aboutMe)));
       } catch (e) {
         print("Ошибка ${e}");

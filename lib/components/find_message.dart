@@ -9,7 +9,7 @@ class FindMessage extends StatefulWidget {
 }
 
 class _FindChatState extends State<FindMessage> {
-  TextEditingController controller = TextEditingController();
+  TextEditingController controller = TextEditingController(text: "@");
   
   @override
   Widget build(BuildContext context) {
@@ -18,6 +18,9 @@ class _FindChatState extends State<FindMessage> {
       height: 60,
       child: Center(
         child: TextField(
+          onEditingComplete: () {
+            
+          },
 
           controller: controller,
           decoration: InputDecoration(

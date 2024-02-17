@@ -10,8 +10,10 @@ class RegisterUserEvent extends RegisterEvent {
   String name;
   String surname;
   String aboutMe;
+  String unicNickName;
   RegisterUserEvent({
     required this.name,
+    required this.unicNickName,
     required this.surname,
     required this.aboutMe,
   });

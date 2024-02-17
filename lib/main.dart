@@ -1,7 +1,6 @@
 import 'package:chat_app/bloc/bloc/register_bloc.dart';
 import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
 import 'package:chat_app/firebase_options.dart';
-import 'package:chat_app/screens/home_screen.dart';
 import 'package:chat_app/screens/start_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

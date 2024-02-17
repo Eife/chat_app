@@ -14,6 +14,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController name = TextEditingController();
+  TextEditingController unicNickName = TextEditingController();
   TextEditingController surname = TextEditingController();
   TextEditingController aboutMe = TextEditingController();
 
@@ -34,12 +35,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Регистрация", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),),
+              Text(
+                "Регистрация",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
               20.height,
               textFormField(
                   validator: validator,
                   controller: name,
                   hintText: "Введите имя"),
+              20.height,
+              textFormField(
+                  validator: validator,
+                  controller: unicNickName,
+                  hintText: "Уникальное имя пользователя(Никнейм)"),
               20.height,
               textFormField(
                   validator: validator,
@@ -61,6 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       BlocProvider.of<RegisterBloc>(context).add(
                           RegisterUserEvent(
                               name: name.text,
+                              unicNickName: unicNickName.text,
                               surname: surname.text,
                               aboutMe: aboutMe.text));
                     }
