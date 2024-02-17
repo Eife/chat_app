@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-class User {
+class UserModel {
   String uid;
   String name;
   String surname;
@@ -9,7 +9,7 @@ class User {
   DateTime? lastSeen;
   String? aboutMe;
 
-  User({
+  UserModel({
     required this.uid,
     required this.name,
     required this.surname,
@@ -31,8 +31,8 @@ class User {
     };
   }
 
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
       uid: map['uid'] as String,
       name: map['name'] as String,
       surname: map['surname'] as String,
@@ -45,5 +45,5 @@ class User {
 
   String toJson() => json.encode(toMap());
 
-  factory User.fromJson(String source) => User.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory UserModel.fromJson(String source) => UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }
