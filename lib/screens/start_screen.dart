@@ -21,8 +21,8 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<RegisterBloc, RegisterState>(listener: (context, state) {
-        if (state is RegisterInitial) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen()));
+        if (state is UserRegisterState) {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
         } },
         child: RegisterScreen(),
       
