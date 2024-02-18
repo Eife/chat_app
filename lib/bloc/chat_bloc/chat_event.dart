@@ -18,3 +18,31 @@ class FindNewUserEvent extends ChatEvent {
   });
 
 }
+
+class StartDialogEvent extends ChatEvent {}
+
+
+class AddNewMessageEvent extends ChatEvent {
+  //для получения uid собеседника и быстрому доступу к ключу
+  UserModel userModel;
+  
+  String newMessage;
+  AddNewMessageEvent({required this.newMessage, required this.userModel});
+}
+
+
+class AddOrReturnChatEvent extends ChatEvent {
+  //для создания нового чата
+  UserModel userModel;
+   AddOrReturnChatEvent({required this.userModel});
+
+}
+class ShowAllMessageInDialogEvent extends ChatEvent {
+  //для создания нового чата
+  UserModel userModel;
+   ShowAllMessageInDialogEvent({required this.userModel});
+
+}
+
+class SubscribeToAllMessageEvent extends ChatEvent {}
+

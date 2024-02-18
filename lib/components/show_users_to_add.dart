@@ -1,6 +1,13 @@
 import 'package:chat_app/models/models.dart';
+import 'package:chat_app/screens/dialog_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
+
+
+
+
+//** ДОБАВИТЬ РЕГИСТР К ПОИСКУ! */
+
 
 class ShowUsersToAdd extends StatefulWidget {
   UserModel user;
@@ -36,7 +43,7 @@ class _ShowUsersToAddState extends State<ShowUsersToAdd> {
             height: 60,
             child: ListTile(
               trailing: IconButton(icon: Icon(Icons.person_add), onPressed: () {
-                //  Navigator.push(context, MaterialPageRoute(builder: (context) => ));
+                 Navigator.push(context, MaterialPageRoute(builder: (context) => DialogScreen(userModel: widget.user)));
               },),
               leading: Container(
                 height: 40,

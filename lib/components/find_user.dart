@@ -33,8 +33,10 @@ class _FindChatState extends State<FindUser> {
     _timer?.cancel();
     _timer = Timer(const Duration(milliseconds: 1500), () {
       print("Попытка вызвать onSearch");
-      BlocProvider.of<ChatBloc>(context).add(FindNewUserEvent(symbolToFind: widget.controller.text));
-     });
+      //Mounted что бы не критило при резком закрытии окна, если блок не выполнен
+      if (mounted) {BlocProvider.of<ChatBloc>(context).add(FindNewUserEvent(symbolToFind: widget.controller.text));
+     }}
+    );
   }
 
 

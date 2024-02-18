@@ -4,24 +4,24 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
-  String uid;
+String uid;
   String unicNickName;
   String name;
   String surname;
   bool activity;
-  List<dynamic> chat; 
+  Map<String, String> chat; 
   Timestamp lastSeen;
   String? aboutMe;
 
 
   UserModel({
-    required this.uid,
+   required this.uid,
     required this.unicNickName,
     required this.name,
     required this.surname,
     required this.activity,
     this.aboutMe, 
-    required this.chat,
+    required this.chat, 
     required this.lastSeen, 
   });
 
@@ -33,7 +33,7 @@ class UserModel {
       'surname': surname,
       'activity': activity,
       'chat': chat,
-      'lastSeen': lastSeen?.millisecondsSinceEpoch,
+      'lastSeen': lastSeen.millisecondsSinceEpoch,
       'aboutMe': aboutMe,
     };
   }
@@ -45,7 +45,7 @@ class UserModel {
       name: map['name'] as String,
       surname: map['surname'] as String,
       activity: map['activity'] as bool,
-      chat: List<dynamic>.from(map['chat'] as List), 
+      chat: Map<String, String>.from(map['chat'] ?? {}),
       lastSeen: map['lastSeen'] as Timestamp,
       aboutMe: map['aboutMe'] as String?, 
     );
@@ -107,6 +107,7 @@ class Chat {
   final String chatId;
   final List<String> participants; // Список UID юзеров
   final List<Message> messages; //  
+  
 
   Chat({
     required this.chatId,

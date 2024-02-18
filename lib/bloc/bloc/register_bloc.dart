@@ -66,19 +66,19 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           'name': event.name,
           'surname': event.surname,
           'activity': true,
-          'chat': [],
+          'chat': {},
           'lastSeen': Timestamp.now(),
           'aboutMe': event.aboutMe,
           'unicNickName': event.unicNickName,
         });
-        emit(UserRegisterState(
+        emit(UserRegisterState( 
             user: UserModel(
                 uid: uid,
                 unicNickName: event.unicNickName,
                 name: event.name,
                 surname: event.surname,
                 activity: true,
-                chat: [],
+                chat: {},
                 lastSeen: Timestamp.now(),
                 aboutMe: event.aboutMe)));
       } catch (e) {
