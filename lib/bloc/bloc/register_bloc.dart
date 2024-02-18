@@ -10,9 +10,28 @@ part 'register_state.dart';
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   RegisterBloc() : super(RegisterInitial()) {
     on<CheckAndAuthorUserEvent>((event, emit) async {
+      print("CheckAndAutorUser");
       final User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) print("Чек блок");
-      
+      if (currentUser != null) {
+        try {
+          print(currentUser.uid);
+          final userSnapshot = await FirebaseFirestore.instance
+              .collection("users")
+              .doc(currentUser.uid)
+              .get();
+
+          if (userSnapshot.exists) {
+            print("Попытка привязать модель к мапе");
+            
+            UserModel user = UserModel.fromMap(userSnapshot.data()!);
+            emit(UserRegisterState(user: user));
+          }
+        } catch (e) {
+          print("Ошибка {$e}");
+          emit(UserEmptyState());
+        }
+      }
+      ;
 
       try {
         print("try");
@@ -29,7 +48,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         }
       } catch (e) {
         print("Юзер null");
-        // await FirebaseAuth.instance.signOut(); 
+        // await FirebaseAuth.instance.signOut();
         //-Для удаление юзера(удалить. Если не выйти, то удаляя вручную юзера с бд зарегистрироваться с тем же)
         //uid не получится.
         emit(UserEmptyState());
@@ -50,14 +69,13 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           'chat': [],
           'lastSeen': Timestamp.now(),
           'aboutMe': event.aboutMe,
+          'unicNickName': event.unicNickName,
         });
         emit(UserRegisterState(
             user: UserModel(
-                
                 uid: uid,
                 unicNickName: event.unicNickName,
                 name: event.name,
-                
                 surname: event.surname,
                 activity: true,
                 chat: [],

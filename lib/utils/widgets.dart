@@ -16,3 +16,16 @@ TextFormField textFormField({
         )),
   );
 }
+
+Container showUser(String name, String surname) {
+  return Container(
+    height: 40,
+    width: 40,
+    decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(200),
+        color: const Color.fromARGB(255, 132, 126, 73)),
+    child: Center(
+      child: Text("${name.substring(0, 1)}${surname.substring(0, 1)}"),
+    ),
+  );
+}

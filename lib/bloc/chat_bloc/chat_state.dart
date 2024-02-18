@@ -15,3 +15,13 @@ final class ChangeAllLastMessageInfoState extends ChatState {
 }
 
 final class ZeroLastMessageInfoState extends ChatState {}
+
+final class ErrorFindUsersState extends ChatState{}
+
+final class ShowAllUsersToFindState extends ChatState {
+
+  List<UserModel> listUsers;
+
+  ShowAllUsersToFindState({required this.listUsers});
+
+}

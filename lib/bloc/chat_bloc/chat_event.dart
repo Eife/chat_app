@@ -4,10 +4,17 @@ part of 'chat_bloc.dart';
 @immutable
 sealed class ChatEvent {}
 
-class FindUsersEvent extends ChatEvent {
+class FindLastMessageUsersEvent extends ChatEvent {
   String userNickName;
-  FindUsersEvent({
+  FindLastMessageUsersEvent({
     required this.userNickName,
+  });
+
+}
+class FindNewUserEvent extends ChatEvent {
+  String symbolToFind;
+  FindNewUserEvent({
+    required this.symbolToFind,
   });
 
 }
