@@ -15,6 +15,9 @@ class _StartScreenState extends State<StartScreen> {
   @override
   void initState() {
     BlocProvider.of<RegisterBloc>(context).add(CheckAndAuthorUserEvent());
+
+    
+
     super.initState();
   }
 

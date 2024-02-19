@@ -3,15 +3,12 @@ import 'package:chat_app/models/models.dart';
 import 'package:chat_app/utils/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class DialogScreen extends StatefulWidget {
   UserModel userModel;
-  // Chat? chat;
-  // List<Message>? messages;
-  // LastMessageInfo? lastMessageInfo;
-  // this.chat, this.messages,
   DialogScreen({super.key, required this.userModel});
 
   @override
@@ -19,19 +16,19 @@ class DialogScreen extends StatefulWidget {
 }
 
 class _DialogScreenState extends State<DialogScreen> {
-  final TextEditingController controller =
-      TextEditingController(); 
+  final TextEditingController controller = TextEditingController();
+  String chatId = "";
 
   @override
   void initState() {
     super.initState();
-  BlocProvider.of<ChatBloc>(context).add(ShowAllMessageInDialogEvent(userModel: widget.userModel));
-
+    BlocProvider.of<ChatBloc>(context)
+        .add(AddOrReturnChatEvent(userModel: widget.userModel));
   }
 
   @override
   void dispose() {
-    controller.dispose(); 
+    controller.dispose();
     super.dispose();
   }
 
@@ -58,7 +55,7 @@ class _DialogScreenState extends State<DialogScreen> {
                   if (text.isNotEmpty) {
                     BlocProvider.of<ChatBloc>(context).add(AddNewMessageEvent(
                         newMessage: text, userModel: widget.userModel));
-                    controller.clear(); 
+                    controller.clear();
                   }
                 },
                 controller: controller,
@@ -81,8 +78,13 @@ class _DialogScreenState extends State<DialogScreen> {
           if (state is StartDialogState) {
             BlocProvider.of<ChatBloc>(context)
                 .add(ShowAllMessageInDialogEvent(userModel: widget.userModel));
-          } else if (state is StartShowMessageState)
-          {}
+          } else if (state is ChatFoundState) {
+            chatId = state.chatId;
+            BlocProvider.of<ChatBloc>(context)
+          .add(ShowAllMessageInDialogEvent(userModel: widget.userModel,));
+          } else if (state is ChatCreateState) {
+            chatId = state.chatId;
+          }
         },
         builder: (context, state) {
           if (state is StartDialogState) {
@@ -92,16 +94,23 @@ class _DialogScreenState extends State<DialogScreen> {
           } else if (state is ShowAllMessageInDialogState) {
             //Именно тут будем просматривать постоянно обновляющиеся сообщения
             // Здесь должна быть логика отображения сообщений
+            //Пока что обновления не привязано к онлайн поиском всех сообщений, и все же
+
+            //Бокс потом убрать и получать через state
+            var box = Hive.box<UserModelToHive>("lastMessage");
+
+
             return ListView.builder(
               itemCount: state.listMessage.length,
-              itemBuilder:(context, index) {
+              itemBuilder: (context, index) {
                 final message = state.listMessage[index];
                 return ListTile(
                   title: Text(message.text),
-                  subtitle: Text(DateFormat("dd MMM kk:mm").format(message.timestamp.toDate())),
+                  subtitle: Text(DateFormat("dd MMM kk:mm")
+                      .format(message.timestamp.toDate())),
                 );
               },
-            ); 
+            );
           } else {
             return Text("Ошибка");
           }

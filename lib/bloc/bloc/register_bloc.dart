@@ -3,6 +3,7 @@ import 'package:chat_app/models/models.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
+import 'package:nb_utils/nb_utils.dart';
 
 part 'register_event.dart';
 part 'register_state.dart';
@@ -71,6 +72,15 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           'aboutMe': event.aboutMe,
           'unicNickName': event.unicNickName,
         });
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("uid", uid);
+        await prefs.setString("name", event.name);
+        await prefs.setString("surname", event.surname);
+        
+
+
+
         emit(UserRegisterState( 
             user: UserModel(
                 uid: uid,

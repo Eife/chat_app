@@ -44,5 +44,11 @@ class ShowAllMessageInDialogEvent extends ChatEvent {
 
 }
 
+class SubcribeToAllChatEvent extends ChatEvent {
+  
+}
+
 class SubscribeToAllMessageEvent extends ChatEvent {}
+
+class ShowAllDialogHomeScreenEvent extends ChatEvent {}
 

@@ -18,3 +18,4 @@ class RegisterUserEvent extends RegisterEvent {
     required this.aboutMe,
   });
 }
+
