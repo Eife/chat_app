@@ -3,6 +3,7 @@ import 'package:chat_app/components/find_user.dart';
 import 'package:chat_app/models/models.dart';
 import 'package:chat_app/screens/find_new_users.dart';
 import 'package:chat_app/components/list_tile_user_dialog.dart';
+import 'package:chat_app/utils/user_data.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -72,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemBuilder: (context, index) {
                       final message = messages[index];
                       return ListTileUserDialog(
+
                         name: message.name,
                         surname: message.surname,
                         isRead: message.isRead,

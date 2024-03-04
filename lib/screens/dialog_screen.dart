@@ -1,5 +1,6 @@
 import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
 import 'package:chat_app/models/models.dart';
+import 'package:chat_app/utils/user_data.dart';
 import 'package:chat_app/utils/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,13 +52,6 @@ class _DialogScreenState extends State<DialogScreen> {
             ),
             Expanded(
               child: TextField(
-                onSubmitted: (text) {
-                  if (text.isNotEmpty) {
-                    BlocProvider.of<ChatBloc>(context).add(AddNewMessageEvent(
-                        newMessage: text, userModel: widget.userModel));
-                    controller.clear();
-                  }
-                },
                 controller: controller,
                 decoration: InputDecoration(
                     hintText: "Сообщение",
@@ -66,8 +60,13 @@ class _DialogScreenState extends State<DialogScreen> {
               ),
             ),
             IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.keyboard_voice),
+              onPressed: () {
+                BlocProvider.of<ChatBloc>(context).add(AddNewMessageEvent(
+                    newMessage: controller.text, userModel: widget.userModel));
+
+           
+              },
+              icon: Icon(Icons.send),
               hoverColor: Color.fromARGB(255, 218, 217, 217),
             )
           ],
@@ -80,8 +79,9 @@ class _DialogScreenState extends State<DialogScreen> {
                 .add(ShowAllMessageInDialogEvent(userModel: widget.userModel));
           } else if (state is ChatFoundState) {
             chatId = state.chatId;
-            BlocProvider.of<ChatBloc>(context)
-          .add(ShowAllMessageInDialogEvent(userModel: widget.userModel,));
+            BlocProvider.of<ChatBloc>(context).add(ShowAllMessageInDialogEvent(
+              userModel: widget.userModel,
+            ));
           } else if (state is ChatCreateState) {
             chatId = state.chatId;
           }
@@ -97,7 +97,6 @@ class _DialogScreenState extends State<DialogScreen> {
             //Пока что обновления не привязано к онлайн поиском всех сообщений, и все же
 
             //Бокс потом убрать и получать через state
-            var box = Hive.box<UserModelToHive>("lastMessage");
 
 
             return ListView.builder(
