@@ -46,91 +46,103 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         emit(ErrorFindUsersState());
       }
     });
-on<AddNewMessageEvent>((event, emit) async {
-  String chatId = event.userModel.chat[userInfo!.uid]!;
-  print("ТУТ СМОТРИ ТУТ БУДЕТ ЧАТ АЙДИ! $chatId");
-  try {
-    //Получаем чат айди
+    on<AddNewMessageEvent>((event, emit) async {
+      String chatId = event.userModel.chat[userInfo!.uid]!;
+      print("ТУТ СМОТРИ ТУТ БУДЕТ ЧАТ АЙДИ! $chatId"); 
 
-    var box = Hive.box<UserModelToHive>("lastMessages");
-    
+      try {
+        //Получаем чат айди
 
-    // Проверка на наличие записи для данного chatId в Hive.
-    UserModelToHive? existingData = await box.get(chatId);
+        var box = Hive.box<UserModelToHive>("lastMessages");
 
-    if (existingData != null) {
-      // Если запись существует, обновляем данные последнего сообщения.
-      existingData.lastMessage = event.newMessage;
-      existingData.timeStamp = Timestamp.now().toString();
-      existingData.isRead = false; // Помечаем сообщение как непрочитанное.
-      box.put(chatId, existingData); // Обновляем запись в Hive.
-      print("Путим с наличием чата");
-    } else {
-      // Если запись отсутствует, создаем новую.
-      print("Путим безналичие чата");
-      await box.put(chatId, UserModelToHive(
-        uid: event.userModel.uid,
-        name: event.userModel.name,
-        surname: event.userModel.surname,
-        chatId: chatId,
-        isRead: false, // Помечаем сообщение как непрочитанное.
-        lastMessage: event.newMessage,
-        timeStamp: Timestamp.now().toString(),
-      ));
-    }
-  } catch (e) {
-    print("Ошибка при добавлении в коробку: $e");
-  }
+        // Проверка на наличие записи для данного chatId в Hive.
+        UserModelToHive? existingData = await box.get(chatId);
 
-  // Добавление сообщения в Firebase и обновление lastMessageInfo.
-  try {
-    User? user = await FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print("Пользователь не найден");
-      return;
-    }
-    
-    String uid = user.uid;
-    String newMessage = event.newMessage;
-    String messageId = Uuid().v4();
+        if (existingData != null) {
+          // Если запись существует, обновляем данные последнего сообщения.
+          existingData.lastMessage = event.newMessage;
+          existingData.timeStamp = Timestamp.now().toString();
+          existingData.isRead = false; // Помечаем сообщение как непрочитанное.
+          box.put(chatId, existingData); // Обновляем запись в Hive.
+          print("Путим с наличием чата");
+        } else {
+          // Если запись отсутствует, создаем новую.
+          print("Путим безналичие чата");
+          await box.put(
+              chatId,
+              UserModelToHive(
+                unicNickName: event.userModel.unicNickName,
+                activity: false,
+                chat: {},
+                lastSeen: event.userModel.lastSeen.toString(),
+                uid: event.userModel.uid,
+                name: event.userModel.name,
+                surname: event.userModel.surname,
+                chatId: chatId,
+                isRead: false, // Помечаем сообщение как непрочитанное.
+                lastMessage: event.newMessage,
+                timeStamp: Timestamp.now().toString(),
+              ));
+        }
+      } catch (e) {
+        print("Ошибка при добавлении в коробку: $e");
+      }
 
-    Map<String, dynamic> message = {
-      "messageId": messageId,
-      "senderId": uid,
-      "text": newMessage,
-      "timestamp": Timestamp.now(),
-    };
+      // Добавление сообщения в Firebase и обновление lastMessageInfo.
+      try {
+        User? user = await FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          print("Пользователь не найден");
+          return;
+        }
 
-    // Убедитесь, что chatId корректно определен для данного контекста.
-    if (chatId.isEmpty) {
-      print("Chat ID is not provided.");
-      return;
-    }
+        String uid = user.uid;
+        String newMessage = event.newMessage;
+        String messageId = Uuid().v4();
 
-    // Обновление lastMessageInfo в документе чата.
-    final lastMessageInfo = LastMessageInfo(
-      chatId: chatId,
-      lastMessage: newMessage,
-      timestamp: Timestamp.now().toString(),
-      senderId: uid,
-      senderName: event.userModel.name, // Используем имя отправителя из события.
-      senderSurname: event.userModel.surname, // Используем фамилию отправителя из события.
-      read: false,
-    );
+        Map<String, dynamic> message = {
+          "messageId": messageId,
+          "senderId": uid,
+          "text": newMessage,
+          "timestamp": Timestamp.now(),
+        };
 
-    // Обновляем информацию о последнем сообщении в документе чата.
-    await FirebaseFirestore.instance.collection("chat").doc(chatId).update({
-      "lastMessageInfo": lastMessageInfo.toMap(),
+        // Убедитесь, что chatId корректно определен для данного контекста.
+        if (chatId.isEmpty) {
+          print("Chat ID is not provided.");
+          return;
+        }
+
+        // Обновление lastMessageInfo в документе чата.
+        final lastMessageInfo = LastMessageInfo(
+          chatId: chatId,
+          lastMessage: newMessage,
+          timestamp: Timestamp.now().toString(),
+          senderId: uid,
+          senderName:
+              event.userModel.name, // Используем имя отправителя из события.
+          senderSurname: event
+              .userModel.surname, // Используем фамилию отправителя из события.
+          read: false,
+        );
+
+        // Обновляем информацию о последнем сообщении в документе чата.
+        await FirebaseFirestore.instance.collection("chat").doc(chatId).update({
+          "lastMessageInfo": lastMessageInfo.toMap(),
+        });
+
+        // Добавляем сообщение в подколлекцию messages документа чата.
+        await FirebaseFirestore.instance
+            .collection("chat")
+            .doc(chatId)
+            .collection("messages")
+            .add(message);
+        print("Сообщение успешно добавлено.");
+        emit(ChatFoundState(chatId: chatId));
+      } catch (e) {
+        print("Ошибка в сохранении нового сообщения: $e");
+      }
     });
-
-    // Добавляем сообщение в подколлекцию messages документа чата.
-    await FirebaseFirestore.instance.collection("chat").doc(chatId).collection("messages").add(message);
-    print("Сообщение успешно добавлено.");
-    emit(ChatFoundState(chatId: chatId));
-  } catch (e) {
-    print("Ошибка в сохранении нового сообщения: $e");
-  }
-});
 
     on<ShowAllMessageInDialogEvent>((event, emit) async {
       try {
@@ -174,17 +186,18 @@ on<AddNewMessageEvent>((event, emit) async {
 
           if (existingData != null) {
             existingData.lastMessage = lastMessageText;
-            existingData.timeStamp = lastMessageTimestamp
-                .toString(); 
+            existingData.timeStamp = lastMessageTimestamp.toString();
             box.put(
                 event.userModel.uid, existingData); // Обновляем запись в Hive
-            
-
           } else {
             // Если данных нет, создаем новую запись
             box.put(
                 event.userModel.uid,
                 UserModelToHive(
+                  unicNickName: event.userModel.unicNickName,
+                  activity: false,
+                  chat: {},
+                  lastSeen: event.userModel.lastSeen.toString(),
                   uid: event.userModel.uid,
                   name: event.userModel.name,
                   surname: event.userModel.surname,
@@ -205,7 +218,7 @@ on<AddNewMessageEvent>((event, emit) async {
     });
 
     //Подписка на обновления. Доделать.
-// Предполагаем, что userInfo содержит UID текущего пользователя
+// Вроде userInfo содержит UID текущего пользователя
     on<SubscribeToAllMessageEvent>((event, emit) async {
       User user =
           userInfo!; //Вроде всегда есть userInfo при каждом входе,но все же может проверку сделать
@@ -237,6 +250,10 @@ on<AddNewMessageEvent>((event, emit) async {
             } else {
               // Создаем новую запись
               UserModelToHive newData = UserModelToHive(
+                unicNickName: "un",
+                activity: false,
+                chat: {},
+                lastSeen: "",
                 uid: currentUserUid,
                 name: "Имя",
                 surname: "Фамилия",
@@ -253,7 +270,7 @@ on<AddNewMessageEvent>((event, emit) async {
       });
     });
 
-    on<SubcribeToAllChatEvent>((event, emit) {
+    on<SubcribeToAllChatEvent>((event, emit) async {
       String uid = FirebaseAuth.instance.currentUser!.uid;
 
       FirebaseFirestore.instance
@@ -263,9 +280,9 @@ on<AddNewMessageEvent>((event, emit) async {
           .listen((snapshot) {
         var box = Hive.box<UserModelToHive>("lastMessages");
 
-        for (var doc in snapshot.docs) {
+        for (var doc in snapshot.docs)  {
           var data = doc.data() as Map<String, dynamic>;
-          // Предполагаем, что у вас есть поле lastMessageInfo в документе чата
+          // поле lastMessageInfo в документе чата
           var lastMessageInfo =
               data['lastMessageInfo'] as Map<String, dynamic>?;
 
@@ -291,10 +308,15 @@ on<AddNewMessageEvent>((event, emit) async {
               existingData.isRead = lastMessage.read;
               box.put(doc.id, existingData);
             } else {
+
               // Создание новой записи, если она отсутствует
               box.put(
                   doc.id,
                   UserModelToHive(
+                    unicNickName: "",
+                    activity: false,
+                    chat: {},
+                    lastSeen: "",
                     uid: lastMessage.senderId,
                     name: lastMessage.senderName,
                     surname: lastMessage.senderSurname,

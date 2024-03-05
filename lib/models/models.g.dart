@@ -18,33 +18,48 @@ class UserModelToHiveAdapter extends TypeAdapter<UserModelToHive> {
     };
     return UserModelToHive(
       uid: fields[0] as String,
-      name: fields[1] as String,
-      surname: fields[2] as String,
-      chatId: fields[3] as String,
-      isRead: fields[4] as bool,
-      lastMessage: fields[5] as String,
-      timeStamp: fields[6] as String,
+      unicNickName: fields[1] as String,
+      name: fields[2] as String,
+      surname: fields[3] as String,
+      activity: fields[4] as bool,
+      chat: (fields[5] as Map).cast<String, String>(),
+      lastSeen: fields[6] as String,
+      chatId: fields[7] as String,
+      isRead: fields[8] as bool,
+      lastMessage: fields[9] as String,
+      timeStamp: fields[10] as String,
+      aboutMe: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModelToHive obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
-      ..write(obj.name)
+      ..write(obj.unicNickName)
       ..writeByte(2)
-      ..write(obj.surname)
+      ..write(obj.name)
       ..writeByte(3)
-      ..write(obj.chatId)
+      ..write(obj.surname)
       ..writeByte(4)
-      ..write(obj.isRead)
+      ..write(obj.activity)
       ..writeByte(5)
-      ..write(obj.lastMessage)
+      ..write(obj.chat)
       ..writeByte(6)
-      ..write(obj.timeStamp);
+      ..write(obj.lastSeen)
+      ..writeByte(7)
+      ..write(obj.chatId)
+      ..writeByte(8)
+      ..write(obj.isRead)
+      ..writeByte(9)
+      ..write(obj.lastMessage)
+      ..writeByte(10)
+      ..write(obj.timeStamp)
+      ..writeByte(11)
+      ..write(obj.aboutMe);
   }
 
   @override

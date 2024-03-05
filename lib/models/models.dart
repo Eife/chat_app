@@ -2,9 +2,9 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'package:hive/hive.dart';
 part 'models.g.dart';
 
 class UserModel {
@@ -129,13 +129,15 @@ class Chat {
     };
   }
 
-  factory Chat.fromMap(Map<String, dynamic> map) {  
+  factory Chat.fromMap(Map<String, dynamic> map) {
     return Chat(
       chatId: map['chatId'],
       participants: List<String>.from(map['participants']),
       messages: List<Message>.from(
           map['messages']?.map((x) => Message.fromMap(x)) ?? []),
-      lastMessageInfo: map['lastMessageInfo'] != null? LastMessageInfo.fromMap(map["lastMessageInfo"]) : null,
+      lastMessageInfo: map['lastMessageInfo'] != null
+          ? LastMessageInfo.fromMap(map["lastMessageInfo"])
+          : null,
     );
   }
 }
@@ -178,53 +180,95 @@ class UserModelToHive extends HiveObject {
   final String uid;
 
   @HiveField(1)
-  final String name;
+  final String unicNickName;
 
   @HiveField(2)
-  final String surname;
+  String name;
 
   @HiveField(3)
-  final String chatId;
+  String surname;
 
   @HiveField(4)
-  bool isRead;
+  bool activity;
 
   @HiveField(5)
-  String lastMessage;
+  final Map<String, String> chat;
 
   @HiveField(6)
+  String lastSeen; // Timestamp преобразован в String
+
+  @HiveField(7)
+  final String chatId;
+
+  @HiveField(8)
+  bool isRead;
+
+  @HiveField(9)
+  String lastMessage;
+
+  @HiveField(10)
   String timeStamp;
 
-  UserModelToHive(
-      {required this.uid,
-      required this.name,
-      required this.surname,
-      required this.chatId,
-      required this.isRead,
-      required this.lastMessage,
-      required this.timeStamp});
+  @HiveField(11)
+  String? aboutMe;
+
+  UserModelToHive({
+    required this.uid,
+    required this.unicNickName,
+    required this.name,
+    required this.surname,
+    required this.activity,
+    required this.chat,
+    required this.lastSeen,
+    required this.chatId,
+    required this.isRead,
+    required this.lastMessage,
+    required this.timeStamp,
+    this.aboutMe,
+  });
 
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
+      'unicNickName': unicNickName,
       'name': name,
       'surname': surname,
+      'activity': activity,
+      'chat': chat,
+      'lastSeen': lastSeen,
       'chatId': chatId,
       'isRead': isRead,
       'lastMessage': lastMessage,
       'timeStamp': timeStamp,
+      'aboutMe': aboutMe,
     };
   }
 
   factory UserModelToHive.fromJson(Map<String, dynamic> map) {
+    var chatData = map['chat'];
+    Map<String, String> chatMap;
+
+    if (chatData is String) {
+      // Если chatData - строка, предполагаем, что это JSON
+      chatMap = Map<String, String>.from(json.decode(chatData));
+    } else {
+      // Если chatData уже Map, используем его напрямую
+      chatMap = Map<String, String>.from(chatData);
+    }
+
     return UserModelToHive(
       uid: map['uid'],
+      unicNickName: map['unicNickName'],
       name: map['name'],
       surname: map['surname'],
+      activity: map['activity'],
+      chat: Map<String, String>.from(map['chat']),
+      lastSeen: map['lastSeen'],
       chatId: map['chatId'],
       isRead: map['isRead'],
       lastMessage: map['lastMessage'],
       timeStamp: map['timeStamp'],
+      aboutMe: map['aboutMe'],
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
 import 'package:chat_app/models/models.dart';
-import 'package:chat_app/utils/user_data.dart';
 import 'package:chat_app/utils/widgets.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class DialogScreen extends StatefulWidget {
-  UserModel userModel;
+  UserModel? userModel;
   DialogScreen({super.key, required this.userModel});
 
   @override
@@ -19,12 +19,31 @@ class DialogScreen extends StatefulWidget {
 class _DialogScreenState extends State<DialogScreen> {
   final TextEditingController controller = TextEditingController();
   String chatId = "";
+  late UserModel model;
 
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<ChatBloc>(context)
-        .add(AddOrReturnChatEvent(userModel: widget.userModel));
+
+
+    if (widget.userModel != null) {
+      model = widget.userModel!;
+      BlocProvider.of<ChatBloc>(context)
+          .add(AddOrReturnChatEvent(userModel: widget.userModel!));
+    } else {
+      var box = Hive.box<UserModelToHive>("lastMessages");
+      UserModelToHive existingData = box.get(chatId)!;
+      UserModelToHive usmth = existingData;
+      UserModel data = UserModel(
+          uid: existingData.uid,
+          unicNickName: usmth.unicNickName,
+          name: usmth.name,
+          surname: usmth.surname,
+          activity: usmth.activity,
+          chat: usmth.chat,
+          lastSeen: Timestamp.now());
+      model = data;
+    }
   }
 
   @override
@@ -37,8 +56,8 @@ class _DialogScreenState extends State<DialogScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: showUser(widget.userModel.name, widget.userModel.surname),
-        title: Text("${widget.userModel.name} ${widget.userModel.surname}",
+        leading: showUser(model.name, model.surname),
+        title: Text("${model.name} ${model.surname}",
             style: TextStyle(fontSize: 22)),
       ),
       bottomNavigationBar: Container(
@@ -62,9 +81,7 @@ class _DialogScreenState extends State<DialogScreen> {
             IconButton(
               onPressed: () {
                 BlocProvider.of<ChatBloc>(context).add(AddNewMessageEvent(
-                    newMessage: controller.text, userModel: widget.userModel));
-
-           
+                    newMessage: controller.text, userModel: model));
               },
               icon: Icon(Icons.send),
               hoverColor: Color.fromARGB(255, 218, 217, 217),
@@ -76,11 +93,11 @@ class _DialogScreenState extends State<DialogScreen> {
         listener: (context, state) {
           if (state is StartDialogState) {
             BlocProvider.of<ChatBloc>(context)
-                .add(ShowAllMessageInDialogEvent(userModel: widget.userModel));
+                .add(ShowAllMessageInDialogEvent(userModel: model));
           } else if (state is ChatFoundState) {
             chatId = state.chatId;
             BlocProvider.of<ChatBloc>(context).add(ShowAllMessageInDialogEvent(
-              userModel: widget.userModel,
+              userModel: model,
             ));
           } else if (state is ChatCreateState) {
             chatId = state.chatId;
@@ -97,7 +114,6 @@ class _DialogScreenState extends State<DialogScreen> {
             //Пока что обновления не привязано к онлайн поиском всех сообщений, и все же
 
             //Бокс потом убрать и получать через state
-
 
             return ListView.builder(
               itemCount: state.listMessage.length,
