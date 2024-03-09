@@ -73,7 +73,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemBuilder: (context, index) {
                       final message = messages[index];
                       return ListTileUserDialog(
-
+                        unicNickName: message.unicNickName,
+                        uid: message.uid,
                         name: message.name,
                         surname: message.surname,
                         isRead: message.isRead,

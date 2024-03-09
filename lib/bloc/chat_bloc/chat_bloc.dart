@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:chat_app/models/models.dart';
 import 'package:chat_app/utils/user_data.dart';
@@ -47,8 +49,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       }
     });
     on<AddNewMessageEvent>((event, emit) async {
-      String chatId = event.userModel.chat[userInfo!.uid]!;
-      print("ТУТ СМОТРИ ТУТ БУДЕТ ЧАТ АЙДИ! $chatId"); 
+      print(event.userModel);
+      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      String chatId = sharedPreferences.getString(event.userModel.uid)!;
 
       try {
         //Получаем чат айди
@@ -154,66 +157,82 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }
         String uid = user.uid;
 
-        final querySnapshot =
-            await FirebaseFirestore.instance.collection("users").doc(uid).get();
-        UserModel userModel = UserModel.fromMap(querySnapshot.data()!);
+        // final querySnapshot =
+        //     await FirebaseFirestore.instance.collection("users").doc(uid).get();
+        // UserModel userModel = UserModel.fromMap(querySnapshot.data()!);
 
-        String? chatId = userModel.chat[event.userModel.uid];
-        if (chatId == null) {
-          print("Чат с пользователем ${event.userModel.uid} не найден");
-          emit(ChatIsNotFoundState());
-          return;
-        }
+        // String? chatId = userModel.chat[event.userModel.uid];
 
-        QuerySnapshot messageSnapshot = await FirebaseFirestore.instance
+        SharedPreferences chatIdS = await SharedPreferences.getInstance();
+        String chatId = chatIdS.getString(event.userModel.uid)!;
+
+        final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection("chat")
+            .doc(chatId)
+            .collection("messages")
+            .orderBy("timestamp", descending: false)
+            .limit(20)
+            .get();
+        for (var doc in querySnapshot.docs) {}
+        final List<Message> showAllMessages = querySnapshot.docs
+            .map((doc) => Message.fromMap(doc.data() as Map<String, dynamic>))
+            .toList();
+
+
+        // Подписка на поток сообщений
+        var subscription = FirebaseFirestore.instance
             .collection("chat")
             .doc(chatId)
             .collection("messages")
             .orderBy("timestamp", descending: false)
             .limit(50)
-            .get();
+            .snapshots();
 
-        List<Message> messages = messageSnapshot.docs
-            .map((doc) => Message.fromMap(doc.data() as Map<String, dynamic>))
-            .toList();
+        await for (var snapshot in subscription) {
+          List<Message> messages = snapshot.docs
+              .map((doc) => Message.fromMap(doc.data() as Map<String, dynamic>))
+              .toList();
 
-        if (messages.isNotEmpty) {
-          String lastMessageText = messages.last.text;
-          Timestamp lastMessageTimestamp = messages.last.timestamp;
+          // Обновление Hive и состояния BLoC
+          if (messages.isNotEmpty) {
+            String lastMessageText = messages.last.text;
+            Timestamp lastMessageTimestamp = messages.last.timestamp;
 
-          var box = Hive.box<UserModelToHive>("lastMessages");
-          var existingData = box.get(event.userModel.uid);
+            var box = Hive.box<UserModelToHive>("lastMessages");
+            var existingData = box.get(event.userModel.uid);
 
-          if (existingData != null) {
-            existingData.lastMessage = lastMessageText;
-            existingData.timeStamp = lastMessageTimestamp.toString();
-            box.put(
-                event.userModel.uid, existingData); // Обновляем запись в Hive
-          } else {
-            // Если данных нет, создаем новую запись
-            box.put(
-                event.userModel.uid,
-                UserModelToHive(
-                  unicNickName: event.userModel.unicNickName,
-                  activity: false,
-                  chat: {},
-                  lastSeen: event.userModel.lastSeen.toString(),
-                  uid: event.userModel.uid,
-                  name: event.userModel.name,
-                  surname: event.userModel.surname,
-                  chatId: chatId!,
-                  isRead:
-                      false, // предполагаем, что это новое сообщение не прочитано
-                  lastMessage: lastMessageText,
-                  timeStamp: lastMessageTimestamp.toString(),
-                ));
+            if (existingData != null) {
+              existingData.lastMessage = lastMessageText;
+              existingData.timeStamp = lastMessageTimestamp.toString();
+              box.put(event.userModel.uid, existingData);
+            } else {
+              box.put(
+                  event.userModel.uid,
+                  UserModelToHive(
+                    unicNickName: event.userModel.unicNickName,
+                    activity: false,
+                    chat: {},
+                    lastSeen: event.userModel.lastSeen.toString(),
+                    uid: event.userModel.uid,
+                    name: event.userModel.name,
+                    surname: event.userModel.surname,
+                    chatId: chatId!,
+                    isRead: false,
+                    lastMessage: lastMessageText,
+                    timeStamp: lastMessageTimestamp.toString(),
+                  ));
+            }
+          }
+
+          if (!emit.isDone) {
+            emit(ShowAllMessageInDialogState(listMessage: messages));
           }
         }
-
-        emit(ShowAllMessageInDialogState(listMessage: messages));
       } catch (e) {
         print("Ошибка при получении сообщений: $e");
-        emit(ChatIsNotFoundState());
+        if (!emit.isDone) {
+          emit(ChatIsNotFoundState());
+        }
       }
     });
 
@@ -280,7 +299,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
           .listen((snapshot) {
         var box = Hive.box<UserModelToHive>("lastMessages");
 
-        for (var doc in snapshot.docs)  {
+        for (var doc in snapshot.docs) {
           var data = doc.data() as Map<String, dynamic>;
           // поле lastMessageInfo в документе чата
           var lastMessageInfo =
@@ -308,7 +327,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
               existingData.isRead = lastMessage.read;
               box.put(doc.id, existingData);
             } else {
-
               // Создание новой записи, если она отсутствует
               box.put(
                   doc.id,
@@ -393,6 +411,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         }, SetOptions(merge: true));
 
         print("Чат добавлен.");
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        sharedPreferences.setString("${event.userModel.uid}", chatId);
 
         emit(ChatCreateState(chatId: chatId));
       }

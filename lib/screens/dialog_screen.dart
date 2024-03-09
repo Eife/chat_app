@@ -19,31 +19,19 @@ class DialogScreen extends StatefulWidget {
 class _DialogScreenState extends State<DialogScreen> {
   final TextEditingController controller = TextEditingController();
   String chatId = "";
-  late UserModel model;
+  late UserModel model = UserModel(
+      uid: "Uns",
+      unicNickName: "Uns",
+      name: "Uns",
+      surname: "Uns",
+      activity: false,
+      chat: {},
+      lastSeen: Timestamp.now());
 
   @override
   void initState() {
     super.initState();
-
-
-    if (widget.userModel != null) {
-      model = widget.userModel!;
-      BlocProvider.of<ChatBloc>(context)
-          .add(AddOrReturnChatEvent(userModel: widget.userModel!));
-    } else {
-      var box = Hive.box<UserModelToHive>("lastMessages");
-      UserModelToHive existingData = box.get(chatId)!;
-      UserModelToHive usmth = existingData;
-      UserModel data = UserModel(
-          uid: existingData.uid,
-          unicNickName: usmth.unicNickName,
-          name: usmth.name,
-          surname: usmth.surname,
-          activity: usmth.activity,
-          chat: usmth.chat,
-          lastSeen: Timestamp.now());
-      model = data;
-    }
+    initializeAsync();
   }
 
   @override
@@ -112,9 +100,10 @@ class _DialogScreenState extends State<DialogScreen> {
             //Именно тут будем просматривать постоянно обновляющиеся сообщения
             // Здесь должна быть логика отображения сообщений
             //Пока что обновления не привязано к онлайн поиском всех сообщений, и все же
-
+            //Скорее всего этот метод не отрабатывается.
             //Бокс потом убрать и получать через state
-
+            print("Стейт all message ");
+            print("Ну ка...");
             return ListView.builder(
               itemCount: state.listMessage.length,
               itemBuilder: (context, index) {
@@ -133,4 +122,63 @@ class _DialogScreenState extends State<DialogScreen> {
       ),
     );
   }
+
+  void initializeAsync() async {
+    if (widget.userModel != null) {
+      model = widget.userModel!;
+      BlocProvider.of<ChatBloc>(context)
+          .add(AddOrReturnChatEvent(userModel: widget.userModel!));
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      chatId = sharedPreferences.getString(widget.userModel!.uid)!;
+    } else {
+      var box = Hive.box<UserModelToHive>("lastMessages");
+      UserModelToHive? existingData = box
+          .get("someKey"); // Используйте правильный ключ для получения данных
+      if (existingData != null) {
+        UserModel data = UserModel(
+            uid: existingData.uid,
+            unicNickName: existingData.unicNickName,
+            name: existingData.name,
+            surname: existingData.surname,
+            activity: existingData.activity,
+            chat: existingData.chat,
+            lastSeen: Timestamp.now());
+        model = data;
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+
+        chatId = sharedPreferences.getString(existingData.uid) ?? "";
+      }
+    }
+    setState(() {});
+    // Передача данных в BLoC
+    BlocProvider.of<ChatBloc>(context)
+        .add(ShowAllMessageInDialogEvent(userModel: model));
+  }
 }
+
+
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+ 
+
+  //   if (widget.userModel != null) {
+  //     model = widget.userModel!;
+  //     sharedPreferences.getString(widget.userModel!.uid);
+  //   } else {
+  //     var box = Hive.box<UserModelToHive>("lastMessages");
+  //     UserModelToHive existingData = box.get(chatId)!;
+  //     UserModelToHive usmth = existingData;
+  //     UserModel data = UserModel(
+  //         uid: existingData.uid,
+  //         unicNickName: usmth.unicNickName,
+  //         name: usmth.name,
+  //         surname: usmth.surname,
+  //         activity: usmth.activity,
+  //         chat: usmth.chat,
+  //         lastSeen: Timestamp.now());
+  //     model = data;
+  //     sharedPreferences.getString(existingData.uid);
+  //   }
+  //   BlocProvider.of<ChatBloc>(context).add(ShowAllMessageInDialogEvent(userModel: model));
+  // }
