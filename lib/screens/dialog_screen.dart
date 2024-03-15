@@ -127,7 +127,8 @@ class _DialogScreenState extends State<DialogScreen> {
       ),
       body: Container(
         decoration: BoxDecoration(
-            image: DecorationImage(image: AssetImage(background_dialog), fit: BoxFit.cover)),
+            image: DecorationImage(
+                image: AssetImage(background_dialog), fit: BoxFit.cover)),
         child: BlocConsumer<ChatBloc, ChatState>(
           listener: (context, state) {
             if (state is StartDialogState) {
@@ -141,18 +142,18 @@ class _DialogScreenState extends State<DialogScreen> {
               ));
             } else if (state is ChatCreateState) {
               widget.chatId = state.chatId;
-            } else if (state is ShowAllMessageInDialogState) {
-              // listMessage.clear();
-              // listMessage = state.listMessage;
-              // setState(() {
-
-              // });
-              // print("SS");
-              // print(state.listMessage.length);
-              // setState(() {
-              //   listMessage = state.listMessage;
-              // });
-            }
+              BlocProvider.of<ChatBloc>(context).add(
+                  ShowAllMessageInDialogEvent(
+                      userModel: UserModel(
+                          uid: widget.companionUid,
+                          unicNickName: widget.unicNickName,
+                          name: widget.companionName,
+                          surname: widget.companionSurname,
+                          activity: true,
+                          chat: {},
+                          lastSeen: Timestamp.now())));
+            } else if (state is ChatFoundState) {
+            } else if (state is ShowAllMessageInDialogState) {}
           },
           builder: (context, state) {
             if (state is StartDialogState) {
@@ -160,57 +161,60 @@ class _DialogScreenState extends State<DialogScreen> {
             } else if (state is ChatFoundState) {
               return CircularProgressIndicator();
             } else if (state is ChatIsNotFoundState) {
-              return Text("Отправьте ваше первое сообщение!");
+              return Center(child: Text("Отправьте ваше первое сообщение!"));
             } else if (state is ShowAllMessageInDialogState
                 // ||
                 //     state is ChatFoundState
                 ) {
-              print("Количество в билдере ${state.listMessage.length}");
-              return ListView.builder(
-                reverse: true,
-                itemCount: state.listMessage.length,
-                itemBuilder: (context, index) {
-                  final message = state.listMessage[index];
-                  return Align(
-                    alignment: message.senderId == myUid
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: message.senderId == myUid
-                              ? Colors.blue[200]
-                              : Colors.grey[200],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: message.senderId == myUid
-                              ? CrossAxisAlignment.end
-                              : CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              message.text,
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            4.height,
-                            Text(
-                              DateFormat("dd MMM kk:mm")
-                                  .format(message.timestamp.toDate()),
-                              style:
-                                  TextStyle(fontSize: 12, color: Colors.grey),
-                            ),
-                          ],
+            if (state.listMessage.isNotEmpty) {
+                return ListView.builder(
+                  reverse: true,
+                  itemCount: state.listMessage.length,
+                  itemBuilder: (context, index) {
+                    final message = state.listMessage[index];
+                    return Align(
+                      alignment: message.senderId == myUid
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 4.0),
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: message.senderId == myUid
+                                ? Colors.blue[200]
+                                : Colors.grey[200],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: message.senderId == myUid
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                message.text,
+                                style: TextStyle(fontSize: 16),
+                              ),
+                              4.height,
+                              Text(
+                                DateFormat("dd MMM kk:mm")
+                                    .format(message.timestamp.toDate()),
+                                style:
+                                    TextStyle(fontSize: 12, color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              );
+                    );
+                  },
+                );
+              } else {
+                return Center(child: Text("Напишите новое сообщение"));
+              }
             } else {
-              return Center(child: Text("Отправьте ваше первое сообщение!"));
+              return Center(child: Text("Ошибка"));
             }
           },
         ),

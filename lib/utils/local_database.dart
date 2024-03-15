@@ -42,7 +42,7 @@ class LocalStorageService {
   }
 
   Future<void> clearAll() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await _prefs;
     await prefs.clear();
   }
 

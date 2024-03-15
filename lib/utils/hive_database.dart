@@ -46,6 +46,6 @@ class HiveDatabaseLastMessage {
   }
 
   Future<void> deleteAll() async {
-    await box.deleteFromDisk();
+    await box.delete("lastMessages");
   }
 }

@@ -17,7 +17,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       final User? currentUser = FirebaseAuth.instance.currentUser;
 
       if (currentUser != null) {
-        await _localStorageService.saveUserUid(currentUser.uid);
+        // await _localStorageService.saveUserUid(currentUser.uid);
         try {
           print(currentUser.uid);
           final userSnapshot = await FirebaseFirestore.instance

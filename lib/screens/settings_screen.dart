@@ -97,7 +97,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                     BlocProvider.of<ChatBloc>(context).add(
                                         DeleteAccountAndChatsEvent(
                                             userId: uid));
-                                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => StartScreen()));
+                                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => StartScreen()),(Route<dynamic> route) => false);
                                     
                                   },
                                   child: Text("Удалить"))

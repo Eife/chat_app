@@ -111,12 +111,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         if (!emit.isDone) {
           emit(ShowAllMessageInDialogState(listMessage: allMessages));
         }
-
-        Message lastMessage = allMessages.first;
+        Timestamp lastMess = Timestamp.now();
+        if (allMessages.isNotEmpty) {
+          Message lastMessage = allMessages.first;
+          Timestamp lastMess = lastMessage.timestamp;
+        }
+        
 
         // Подписываемся на поток новых сообщений
 
-        Timestamp lastMess = lastMessage.timestamp;
+        
         List<Message> saveList = [];
         print("text");
         await for (final newMessages
