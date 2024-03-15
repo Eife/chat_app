@@ -1,4 +1,6 @@
 import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
+import 'package:chat_app/screens/register_screen.dart';
+import 'package:chat_app/screens/start_screen.dart';
 import 'package:chat_app/utils/images.dart';
 import 'package:chat_app/utils/local_database.dart';
 import 'package:chat_app/utils/widgets.dart';
@@ -95,6 +97,8 @@ class _SettingScreenState extends State<SettingScreen> {
                                     BlocProvider.of<ChatBloc>(context).add(
                                         DeleteAccountAndChatsEvent(
                                             userId: uid));
+                                    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => StartScreen()));
+                                    
                                   },
                                   child: Text("Удалить"))
                             ],

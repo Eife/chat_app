@@ -1,5 +1,6 @@
 import 'package:chat_app/models/models.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class OptionsFirestoreBase {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -110,6 +111,9 @@ class OptionsFirestoreBase {
     } else {
       print("No chat data available");
     }
+    await FirebaseAuth.instance.currentUser!.delete();
+
+    await FirebaseAuth.instance.signOut();
 
     await FirebaseFirestore.instance.collection("users").doc(userUid).delete();
   }

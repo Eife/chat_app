@@ -243,7 +243,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     on<DeleteAccountAndChatsEvent>((event, emit) {
       _firestorebase.deleteAllDatabase(event.userId);
-      
+      _hiveDatabaseLastMessage.deleteAll();
+      _localStorageService.clearAll();
     });
   }
 }

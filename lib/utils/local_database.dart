@@ -41,6 +41,11 @@ class LocalStorageService {
     } else return [name, surname];
   }
 
+  Future<void> clearAll() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
   // Future<void> saveUser(UserModel user) async {
   //   final SharedPreferences prefs = await _prefs;
   //   String userJson = user.toJson();

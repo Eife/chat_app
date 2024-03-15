@@ -44,4 +44,8 @@ class HiveDatabaseLastMessage {
       String chatId, UserModelToHive data) async {
     await box.put(chatId, data);
   }
+
+  Future<void> deleteAll() async {
+    await box.deleteFromDisk();
+  }
 }
