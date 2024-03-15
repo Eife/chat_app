@@ -110,13 +110,11 @@ class LastMessageInfo {
 class Chat {
   final String chatId;
   final List<String> participants; // Список UID юзеров
-  final List<Message> messages; //
   final LastMessageInfo? lastMessageInfo;
 
   Chat({
     required this.chatId,
     required this.participants,
-    this.messages = const [],
     this.lastMessageInfo,
   });
 
@@ -124,7 +122,6 @@ class Chat {
     return {
       'chatId': chatId,
       'participants': participants,
-      'messages': messages.map((message) => message.toMap()).toList(),
       'lastMessageInfo': lastMessageInfo?.toMap(),
     };
   }
@@ -133,8 +130,6 @@ class Chat {
     return Chat(
       chatId: map['chatId'],
       participants: List<String>.from(map['participants']),
-      messages: List<Message>.from(
-          map['messages']?.map((x) => Message.fromMap(x)) ?? []),
       lastMessageInfo: map['lastMessageInfo'] != null
           ? LastMessageInfo.fromMap(map["lastMessageInfo"])
           : null,
@@ -272,4 +267,5 @@ class UserModelToHive extends HiveObject {
     );
   }
 }
+
 

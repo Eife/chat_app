@@ -4,6 +4,7 @@ import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
 import 'package:chat_app/components/find_user.dart';
 import 'package:chat_app/components/show_users_to_add.dart';
 import 'package:chat_app/models/models.dart';
+import 'package:chat_app/utils/images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -50,10 +51,14 @@ class _FindNewUsersState extends State<FindNewUsers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // extendBodyBehindAppBar: true,
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(144, 192, 255, 206),
         title: Text("Введите никнейм пользователя", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
       ),
       body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage(background_chats), fit: BoxFit.cover)),
         child: Column(children: [
           FindUser(controller: controller,),
           BlocConsumer<ChatBloc, ChatState>(
@@ -70,7 +75,7 @@ class _FindNewUsersState extends State<FindNewUsers> {
                   itemBuilder: (BuildContext context, index) {
                     return ShowUsersToAdd(user: listUsers[index]);
                   }),
-              );} else { return Text("data");}
+              );} else { return Text("Нажмите на поиск");}
             },
           )
 

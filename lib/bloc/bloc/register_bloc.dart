@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat_app/models/models.dart';
+import 'package:chat_app/utils/local_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
@@ -9,11 +10,14 @@ part 'register_event.dart';
 part 'register_state.dart';
 
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
+  LocalStorageService _localStorageService = LocalStorageService();
   RegisterBloc() : super(RegisterInitial()) {
     on<CheckAndAuthorUserEvent>((event, emit) async {
       print("CheckAndAutorUser");
       final User? currentUser = FirebaseAuth.instance.currentUser;
+
       if (currentUser != null) {
+        await _localStorageService.saveUserUid(currentUser.uid);
         try {
           print(currentUser.uid);
           final userSnapshot = await FirebaseFirestore.instance
@@ -23,7 +27,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
           if (userSnapshot.exists) {
             print("Попытка привязать модель к мапе");
-            
+
             UserModel user = UserModel.fromMap(userSnapshot.data()!);
             emit(UserRegisterState(user: user));
           }
@@ -59,7 +63,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInAnonymously();
       String uid = userCredential.user!.uid;
-      print(uid);
+      await _localStorageService.saveUserUid(uid);
+      
 
       try {
         await FirebaseFirestore.instance.collection("users").doc(uid).set({
@@ -73,15 +78,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           'unicNickName': event.unicNickName,
         });
 
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("uid", uid);
-        await prefs.setString("name", event.name);
-        await prefs.setString("surname", event.surname);
-        
+        //Сохраняем в базу
+        await _localStorageService.saveUserUid(uid);
+        await _localStorageService.saveUserInfo(event.name, event.surname);
 
-
-
-        emit(UserRegisterState( 
+        emit(UserRegisterState(
             user: UserModel(
                 uid: uid,
                 unicNickName: event.unicNickName,

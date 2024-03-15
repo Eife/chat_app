@@ -25,7 +25,28 @@ Container showUser(String name, String surname) {
         borderRadius: BorderRadius.circular(200),
         color: const Color.fromARGB(255, 132, 126, 73)),
     child: Center(
-      child: Text("${name.substring(0, 1)}${surname.substring(0, 1)}", style: TextStyle(fontSize: 22),),
+      child: Text(
+        "${name.substring(0, 1)}${surname.substring(0, 1)}",
+        style: TextStyle(fontSize: 22),
+      ),
+    ),
+  );
+}
+
+SizedBox settingsBox(String info, String subInfo, IconData icon) {
+  return SizedBox(
+    height: 80,
+    child: ListTile(
+      leading: Icon(
+        icon,
+        color: Colors.white,
+      ),
+      title: Text(
+        info, style: TextStyle(color: Colors.white), 
+      ),
+      subtitle: Text(
+        subInfo, style: TextStyle(color: Colors.white),
+      ),
     ),
   );
 }

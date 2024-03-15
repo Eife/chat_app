@@ -1,6 +1,7 @@
 import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
 import 'package:chat_app/models/models.dart';
 import 'package:chat_app/screens/dialog_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -42,13 +43,19 @@ class _ShowUsersToAddState extends State<ShowUsersToAdd> {
               trailing: IconButton(
                 icon: Icon(Icons.person_add),
                 onPressed: () {
-                  BlocProvider.of<ChatBloc>(context)
-                      .add(AddOrReturnChatEvent(userModel: widget.user));
+                  // BlocProvider.of<ChatBloc>(context)
+                  //     .add(AddOrReturnChatEvent(userModel: widget.user));
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) =>
-                              DialogScreen(userModel: widget.user)));
+                          builder: (context) => DialogScreen(
+                              companionUid: widget.user.uid,
+                              companionName: widget.user.name,
+                              companionSurname: widget.user.surname,
+                              unicNickName: widget.user.unicNickName,
+                              activity: true,
+                              chat: {},
+                              lastSeen: Timestamp.now())));
                 },
               ),
               leading: Container(
@@ -60,12 +67,12 @@ class _ShowUsersToAddState extends State<ShowUsersToAdd> {
                 child: Center(
                   child: Text(
                     "${name.substring(0, 1)}${surname.substring(0, 1)}",
-                    style: TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 22),
                   ),
                 ),
               ),
-              title: Text("${name} ${surname}"),
-              subtitle: Text("${unicNickname}"),
+              title: Text("${name} ${surname}", style: TextStyle(fontSize: 20),),
+              subtitle: Text("@${unicNickname}", style: TextStyle(fontSize: 18),),
             ),
           ),
         ],

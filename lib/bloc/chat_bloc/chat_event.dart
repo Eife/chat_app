@@ -33,8 +33,8 @@ class AddNewMessageEvent extends ChatEvent {
 
 class AddOrReturnChatEvent extends ChatEvent {
   //для создания нового чата
-  UserModel userModel;
-   AddOrReturnChatEvent({required this.userModel});
+  String companionUid;
+   AddOrReturnChatEvent({required this.companionUid});
 
 }
 class ShowAllMessageInDialogEvent extends ChatEvent {
@@ -52,3 +52,11 @@ class SubscribeToAllMessageEvent extends ChatEvent {}
 
 class ShowAllDialogHomeScreenEvent extends ChatEvent {}
 
+class UnsubscribeDialogEvent extends ChatEvent {}
+
+class DeleteAccountAndChatsEvent extends ChatEvent {
+  String userId;
+  DeleteAccountAndChatsEvent({
+    required this.userId,
+  });
+}
