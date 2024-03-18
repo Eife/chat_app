@@ -53,7 +53,7 @@ class _FindNewUsersState extends State<FindNewUsers> {
     return Scaffold(
       // extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(144, 192, 255, 206),
+        backgroundColor: Color.fromARGB(144, 65, 242, 104),
         title: Text("Введите никнейм пользователя", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
       ),
       body: Container(

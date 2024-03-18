@@ -21,6 +21,16 @@ class LocalStorageService {
     await prefs.setString("userUid", uid);
   }
 
+  Future<void> saveUnicNickName(String nickName) async {
+    final SharedPreferences prefs = await _prefs;
+    await prefs.setString("nickName", nickName);
+  }
+  Future<String> getUnicNickName() async {
+    final SharedPreferences prefs = await _prefs;
+     String nickName = await prefs.getString("nickName")!;
+     return nickName;
+  }
+
   Future<String> getUserUid() async {
     final SharedPreferences prefs = await _prefs;
     String uid = await prefs.getString("userUid")!;

@@ -23,26 +23,28 @@ class DialogScreen extends StatefulWidget {
   String? aboutMe;
   Timestamp lastSeen;
   String? chatId;
+  String? myUid;
 
-  DialogScreen({
-    Key? key,
-    required this.companionUid,
-    required this.companionName,
-    required this.companionSurname,
-    required this.unicNickName,
-    required this.activity,
-    required this.chat,
-    this.aboutMe,
-    required this.lastSeen,
-    this.chatId,
-  }) : super(key: key);
+  DialogScreen(
+      {Key? key,
+      required this.companionUid,
+      required this.companionName,
+      required this.companionSurname,
+      required this.unicNickName,
+      required this.activity,
+      required this.chat,
+      this.aboutMe,
+      required this.lastSeen,
+      this.chatId,
+      required this.myUid})
+      : super(key: key);
 
   @override
   State<DialogScreen> createState() => _DialogScreenState();
 }
 
 class _DialogScreenState extends State<DialogScreen> {
-  String myUid = "";
+  // String myUid = "";
 
   final TextEditingController controller = TextEditingController();
 
@@ -60,6 +62,7 @@ class _DialogScreenState extends State<DialogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String myUid = widget.myUid!;
     String companionName = widget.companionName;
     String companionSurname = widget.companionSurname;
     String companionUid = widget.companionUid;
@@ -166,7 +169,7 @@ class _DialogScreenState extends State<DialogScreen> {
                 // ||
                 //     state is ChatFoundState
                 ) {
-            if (state.listMessage.isNotEmpty) {
+              if (state.listMessage.isNotEmpty) {
                 return ListView.builder(
                   reverse: true,
                   itemCount: state.listMessage.length,
@@ -222,10 +225,10 @@ class _DialogScreenState extends State<DialogScreen> {
     );
   }
 
-  void initializeAsync() async {
+  Future<void> initializeAsync() async {
     LocalStorageService _localStorageService = LocalStorageService();
     widget.chatId = await _localStorageService.getChatId(widget.companionUid);
-    myUid = await _localStorageService.getUserUid();
+    // myUid = await _localStorageService.getUserUid();
 
     if (widget.chatId == null) {
       BlocProvider.of<ChatBloc>(context)

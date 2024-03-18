@@ -13,12 +13,27 @@ import 'package:nb_utils/nb_utils.dart';
 class SettingScreen extends StatefulWidget {
   SettingScreen({super.key});
 
+
+
+  
+
   @override
   State<SettingScreen> createState() => _SettingScreenState();
 }
 
+
 class _SettingScreenState extends State<SettingScreen> {
+  List<String> myInfo = ["", ""];
+  String nickName = "";
   LocalStorageService _localStorageService = LocalStorageService();
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefs();
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,15 +66,16 @@ class _SettingScreenState extends State<SettingScreen> {
                   Expanded(
                     child: ListTile(
                       title: Text(
-                        "Name",
-                        style: TextStyle(color: Colors.white),
+                        "${myInfo[0]} ${myInfo[1]}",
+                        style: TextStyle(color: Colors.white, fontSize: 24),
                       ),
                       subtitle: Text(
-                        "surname",
+                        "@$nickName",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ),
+
                 ],
               ),
             ),
@@ -117,5 +133,14 @@ class _SettingScreenState extends State<SettingScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadPrefs() async {
+    List<String> list = await _localStorageService.getUserInfo(); 
+    String unicNickName = await _localStorageService.getUnicNickName();
+    setState(() {
+      myInfo = list;
+      nickName = unicNickName;
+    });
   }
 }

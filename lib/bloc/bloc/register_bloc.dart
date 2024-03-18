@@ -62,24 +62,25 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       }
     });
 
-    on<CheckUnicalNickNameEvent>((event, emit) async {
-      String checkNickname = event.nickNameToCheck;
+    // on<CheckUnicalNickNameEvent>((event, emit) async {
+    //   String checkNickname = event.nickNameToCheck;
 
-      Future<bool> unicAccount = _optionsFirestoreBase.checkUnicAccount(checkNickname);
+    //   Future<bool> unicAccount = _optionsFirestoreBase.checkUnicAccount(checkNickname);
 
-      if (unicAccount == true) {
+    //   if (unicAccount == true) {
 
-      } else {
-        
-      }
+    //   } else {
 
-    });
+    //   }
+
+    // });
 
     on<RegisterUserEvent>((event, emit) async {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInAnonymously();
       String uid = userCredential.user!.uid;
       await _localStorageService.saveUserUid(uid);
+      await _localStorageService.saveUnicNickName(event.unicNickName);
 
       try {
         await FirebaseFirestore.instance.collection("users").doc(uid).set({

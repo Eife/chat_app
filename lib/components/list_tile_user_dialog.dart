@@ -51,6 +51,7 @@ class _ListTileUserDialogState extends State<ListTileUserDialog> {
           IconButton(
               onPressed: () async{
                 String? chatId = await _localStorageService.getChatId(widget.uid);
+                String? myUid = await _localStorageService.getUserUid();
                 UserModel userModel = UserModel(
                     uid: widget.uid,
                     unicNickName: widget.unicNickName,
@@ -61,6 +62,7 @@ class _ListTileUserDialogState extends State<ListTileUserDialog> {
                     lastSeen: Timestamp.now());
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => DialogScreen(
+                      myUid: myUid,
                         companionUid: widget.uid,
                         companionName: widget.name,
                         companionSurname: widget.surname,

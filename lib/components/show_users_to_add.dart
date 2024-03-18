@@ -1,6 +1,7 @@
 import 'package:chat_app/bloc/chat_bloc/chat_bloc.dart';
 import 'package:chat_app/models/models.dart';
 import 'package:chat_app/screens/dialog_screen.dart';
+import 'package:chat_app/utils/local_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +19,8 @@ class ShowUsersToAdd extends StatefulWidget {
 }
 
 class _ShowUsersToAddState extends State<ShowUsersToAdd> {
+  LocalStorageService _localStorageService = LocalStorageService();
+
   @override
   Widget build(BuildContext context) {
     String name = widget.user.name;
@@ -42,13 +45,16 @@ class _ShowUsersToAddState extends State<ShowUsersToAdd> {
             child: ListTile(
               trailing: IconButton(
                 icon: Icon(Icons.person_add),
-                onPressed: () {
+                onPressed: () async {
+                  String? myUid = await _localStorageService.getUserUid();
+
                   // BlocProvider.of<ChatBloc>(context)
                   //     .add(AddOrReturnChatEvent(userModel: widget.user));
                   Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => DialogScreen(
+                            myUid: myUid,
                               companionUid: widget.user.uid,
                               companionName: widget.user.name,
                               companionSurname: widget.user.surname,
@@ -71,8 +77,14 @@ class _ShowUsersToAddState extends State<ShowUsersToAdd> {
                   ),
                 ),
               ),
-              title: Text("${name} ${surname}", style: TextStyle(fontSize: 20),),
-              subtitle: Text("@${unicNickname}", style: TextStyle(fontSize: 18),),
+              title: Text(
+                "${name} ${surname}",
+                style: TextStyle(fontSize: 20),
+              ),
+              subtitle: Text(
+                "@${unicNickname}",
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ),
         ],
