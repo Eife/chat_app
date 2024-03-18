@@ -19,3 +19,9 @@ class RegisterUserEvent extends RegisterEvent {
   });
 }
 
+class CheckUnicalNickNameEvent extends RegisterEvent {
+  String nickNameToCheck;
+  CheckUnicalNickNameEvent({
+    required this.nickNameToCheck,
+  });
+}

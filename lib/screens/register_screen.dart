@@ -1,4 +1,5 @@
 import 'package:chat_app/bloc/bloc/register_bloc.dart';
+import 'package:chat_app/utils/firestore_base.dart';
 import 'package:chat_app/utils/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +13,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  OptionsFirestoreBase _optionsFirestoreBase = OptionsFirestoreBase();
   final _formKey = GlobalKey<FormState>();
   TextEditingController name = TextEditingController();
   TextEditingController unicNickName = TextEditingController();
@@ -49,6 +51,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   validator: validator,
                   controller: unicNickName,
                   hintText: "Уникальное имя пользователя(Никнейм)"),
+              // 4.height,
+              // TextButton(onPressed: () {}, child: child)
               20.height,
               textFormField(
                   validator: validator,
@@ -65,7 +69,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       foregroundColor: MaterialStatePropertyAll(Colors.white),
                       backgroundColor: MaterialStatePropertyAll(
                           Color.fromARGB(255, 166, 102, 184))),
-                  onPressed: () {
+                  onPressed: () async {
+                    if (unicNickName.text.isNotEmpty) {
+                      String validatorResult =
+                          await validatorFromUnicNick(unicNickName.text);
+                      if (validatorResult != unicNickName.text) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Никнейм занят. Выберите другой"),
+                                actions: [TextButton(onPressed: () {
+                                  Navigator.of(context).pop();
+                                }, child: Text('Закрыть окно'))],
+                              );
+                            });
+                            unicNickName.text = "";
+                            return;
+                      }
+                      
+                    }
+
                     if (_formKey.currentState!.validate()) {
                       BlocProvider.of<RegisterBloc>(context).add(
                           RegisterUserEvent(
@@ -88,5 +112,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return "Введите данные";
     }
     return null;
+  }
+
+  Future<String> validatorFromUnicNick(String nickName) async {
+    bool unicNick = await _optionsFirestoreBase.checkUnicAccount(nickName);
+    if (unicNick == true) {
+      return nickName;
+    } else {
+      return "Данный никнейм занят. Выберите другой";
+    }
   }
 }

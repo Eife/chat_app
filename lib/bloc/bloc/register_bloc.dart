@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:chat_app/models/models.dart';
+import 'package:chat_app/utils/firestore_base.dart';
 import 'package:chat_app/utils/local_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +12,7 @@ part 'register_state.dart';
 
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   LocalStorageService _localStorageService = LocalStorageService();
+  OptionsFirestoreBase _optionsFirestoreBase = OptionsFirestoreBase();
   RegisterBloc() : super(RegisterInitial()) {
     on<CheckAndAuthorUserEvent>((event, emit) async {
       print("CheckAndAutorUser");
@@ -59,12 +61,25 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         emit(UserEmptyState());
       }
     });
+
+    on<CheckUnicalNickNameEvent>((event, emit) async {
+      String checkNickname = event.nickNameToCheck;
+
+      Future<bool> unicAccount = _optionsFirestoreBase.checkUnicAccount(checkNickname);
+
+      if (unicAccount == true) {
+
+      } else {
+        
+      }
+
+    });
+
     on<RegisterUserEvent>((event, emit) async {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInAnonymously();
       String uid = userCredential.user!.uid;
       await _localStorageService.saveUserUid(uid);
-      
 
       try {
         await FirebaseFirestore.instance.collection("users").doc(uid).set({

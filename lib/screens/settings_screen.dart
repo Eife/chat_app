@@ -24,7 +24,6 @@ class _SettingScreenState extends State<SettingScreen> {
     return Scaffold(
       // extendBodyBehindAppBar: true,
       appBar: AppBar(
-        
         toolbarHeight: 40,
         iconTheme: IconThemeData(color: Colors.white),
         backgroundColor: Color.fromARGB(160, 36, 32, 37),
@@ -97,8 +96,14 @@ class _SettingScreenState extends State<SettingScreen> {
                                     BlocProvider.of<ChatBloc>(context).add(
                                         DeleteAccountAndChatsEvent(
                                             userId: uid));
-                                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => StartScreen()),(Route<dynamic> route) => false);
-                                    
+                                    await Future.delayed(Duration(seconds: 1))
+                                        .then((value) => Navigator.of(context)
+                                            .pushAndRemoveUntil(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        StartScreen()),
+                                                (Route<dynamic> route) =>
+                                                    false));
                                   },
                                   child: Text("Удалить"))
                             ],

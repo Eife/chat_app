@@ -132,4 +132,12 @@ class OptionsFirestoreBase {
             .map((doc) => Message.fromMap(doc.data() as Map<String, dynamic>))
             .toList());
   }
+
+  Future<bool> checkUnicAccount(String unicNickName) async {
+    final QuerySnapshot querySnapshot = await _firestore
+        .collection("users")
+        .where("unicNickName", isEqualTo: unicNickName)
+        .get();
+    return querySnapshot.docs.isEmpty;
+  }
 }
